@@ -161,6 +161,7 @@ int main(void) {
 		printf("distance: %lf\n",g[size-1][size2-1]/(size+size2));
 		if(min > dis){min = dis;num = i;}
 	}
+	printf("min_num:%d\n",num);
 		
 	return 0;
 }
