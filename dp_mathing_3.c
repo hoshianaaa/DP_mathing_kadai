@@ -35,7 +35,7 @@ void file_readData(char file_name[],int size,double f[size][15]){
 	
 	fp = fopen(file_name, "r"); // ファイルを開く。失敗するとNULLを返す。
 	if(fp == NULL) {
-		printf("%s file not open!\n", file_name);
+		printf("%s file not open!(readData)\n", file_name);
 	}
 	//printf("file open!%s\n",file_name);
 	for(int i=0;i<3;i++)file_oneLine(fp);
@@ -47,6 +47,7 @@ void file_readData(char file_name[],int size,double f[size][15]){
 			//printf("f[%d][%d]: %lf\n",j,i,f[j][i]);
 		}
 	}
+	fclose(fp);
 }
 
 int file_getSize(char fname[]){
@@ -54,12 +55,14 @@ int file_getSize(char fname[]){
 	
 	fp = fopen(fname, "r"); // ファイルを開く。失敗するとNULLを返す。
 	if(fp == NULL) {
-		printf("%s file not open!\n", fname);
+		printf("%s file not open!(getSize)\n", fname);
 		return -1;
 	}
 	file_oneLine(fp);
 	file_oneLine(fp);
-	return (int)file_oneData(fp);
+	int a = (int)file_oneData(fp);
+	fclose(fp);
+	return a;
 }
 
 
@@ -132,39 +135,46 @@ void distance(int size1,int size2,double data1[size1][15],double data2[size2][15
 
 int main(void) {
 	
-	char fname[] = "city011/city011_010.txt";
-	const int size = 61;
-	double data[size][15];
-
-	double dis[100];
-	int num=0;
-	file_readData(fname,size,data);
-	//mat_print(size,15,data);
 	
+	char fname[] = "city011/city011_010.txt";
+	int size = 61;
+	int counter = 0;
+	for(int aaa=0;aaa<100;aaa++){
+		file_nameChange(fname,aaa+1);
+		size = file_getSize(fname);
+		double data[size][15];
 
-	char fname2[] = "city012/city012_001.txt";
-	int size2 = 64;
-	for(int i=0;i<100;i++){
-		file_nameChange(fname2,i+1);
-		size2 = file_getSize(fname2);
-		double data2[size2][15];
-
-		file_readData(fname2,size2,data2);
-		//mat_print(size2,15,data2);
-
-		double data_dis[size][size2];
-		distance(size,size2,data,data2,data_dis);
-		//mat_print(size,size2,data_dis);
-
+		double dis[100];
+		int num=0;
+		file_readData(fname,size,data);
+		//mat_print(size,15,data);
 		
-		double g[size][size2];
-		mat_clear(size,size2,g);
-		dis[i] = dp_mathing(size,size2,data_dis,g);
-		//mat_print(size,size2,g);
+
+		char fname2[] = "city012/city012_001.txt";
+		int size2 = 64;
+		for(int i=0;i<100;i++){
+			file_nameChange(fname2,i+1);
+			size2 = file_getSize(fname2);
+			double data2[size2][15];
+
+			file_readData(fname2,size2,data2);
+			//mat_print(size2,15,data2);
+
+			double data_dis[size][size2];
+			distance(size,size2,data,data2,data_dis);
+			//mat_print(size,size2,data_dis);
+
+			
+			double g[size][size2];
+			mat_clear(size,size2,g);
+			dis[i] = dp_mathing(size,size2,data_dis,g);
+			//mat_print(size,size2,g);
+		}
+		//for(int i=0;i<100;i++)//printf("distance[%d]:%lf\n",i+1,dis[i]);
+		double a = min_vec(dis,&num);
+		printf("%d:%d\n",aaa+1,num);
+		if(aaa+1 == num)counter++;
 	}
-	for(int i=0;i<100;i++)printf("distance[%d]:%lf\n",i+1,dis[i]);
-	double a = min_vec(dis,&num);
-	printf("%lf\n",a);
-	printf("%d\n",num);
+	printf("counter:%d\n",counter);
 	return 0;
 }
